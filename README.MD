@@ -1,4 +1,4 @@
-# RxSatelliteReceiver
+# RcSatelliteReceiver
 
 ## About
 The RcSatelliteReceiver Arduino library allows a developer to use a Spektrum-compatible RC satellite receiver as a PRIMARY receiver connected directly to an Arduino (See below for connection information).
