@@ -6,7 +6,7 @@ Using an RC satellite receiver has many advantages over a standard RC receiver t
 Generic RC satellite receivers can be found on the internet for less than $10 and provide all 12 channels. Combine this with a Devo transmitter running [deviation](https://www.deviationtx.com/) firmware and a high quality 12 channel RC configuration can be created very inexpensively.
 
 ## Connecting an RC satellite receiver to an Arduino
-You will need to remove one connector from the satellite receiver cable then attach the wires to the Arduino as follows. Keep in mind that Arduino sketches are uploaded via the serial pins so the signal pin will need to be disconnected to upload your sketch. Nothing will break if the signal pin is left connected, the sketch will just not upload.
+One of the connectors will need to be removed from the satellite receiver cable to attach the wires to an Arduino. Keep in mind that Arduino sketches are uploaded via the serial pins so the signal pin will need to be disconnected to upload your sketch. Nothing will break if the signal pin is left connected, the sketch will just not upload.
 
 | RC Satellite Wire   | Arduino       | Purpose                     |
 |---------------------|---------------|-----------------------------|
