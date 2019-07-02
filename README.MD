@@ -26,7 +26,7 @@ Be sure to get a satellite receiver that has a pairing button.
 The serial protocol specifications used to create this library can be found here: [Spektrum Remote Receiver Interfacing Rev A](https://www.spektrumrc.com/ProdInfo/Files/Remote%20Receiver%20Interfacing%20Rev%20A.pdf)
 
 ## What Else?
-Let me know if you find this library useful. If you find a bug or have an improvement please no not hesitate to let me know or send me a pull request.
+Let me know if you find this library useful. If you find a bug or have an improvement please do not hesitate to let me know or send me a pull request.
 
 Enjoy!
 
