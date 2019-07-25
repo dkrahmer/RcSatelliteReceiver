@@ -1,18 +1,26 @@
 /*
- * RcSatelliteReceiver.cpp
- *  Created on: 2019-06-30
- *      Author: Doug Krahmer
- *
- * Satellite receive serial protocol specifications can be found here: https://www.spektrumrc.com/ProdInfo/Files/Remote%20Receiver%20Interfacing%20Rev%20A.pdf
- * Only Servo Field 2048 Mode is supported (no support for DSM2/22ms)
- */
+* RcSatelliteReceiver.cpp
+*  Created on: 2019-06-30
+*      Author: Doug Krahmer
+*
+* Satellite receive serial protocol specifications can be found here: https://www.spektrumrc.com/ProdInfo/Files/Remote%20Receiver%20Interfacing%20Rev%20A.pdf
+* Only Servo Field 2048 Mode is supported (no support for DSM2/22ms)
+*/
+
 //#define DEBUG 1
 #include "RcSatelliteReceiver.h"
 
 RcSatelliteReceiver::RcSatelliteReceiver(void)
 {
-	for (int i = 0; i < MaxChannels; i++)
+	int midPoint = (MinChannelValue + MaxChannelValue) / 2;
+	for (int i = 0; i < MaxChannels; i++) {
 		_channelValues[i] = 0;
+		_channelFailsafeValues[i] = 0;
+	}
+
+	// Channel 1 is throttle so set it to the lowest point
+	_channelValues[0] = 0;
+	_channelFailsafeValues[0] = 0;
 }
 
 void RcSatelliteReceiver::readChannelValues(void)
@@ -73,6 +81,8 @@ void RcSatelliteReceiver::readChannelValues(void)
 			int channelValue = getChannelValue(servoData);
 			_channelValues[channelNumber] = channelValue;
 		}
+
+		_lastReceiveMillis = millis();
 	}
 
 #ifdef DEBUG
@@ -114,6 +124,9 @@ int RcSatelliteReceiver::getChannelValue(int servoData)
 
 int RcSatelliteReceiver::getChannel(int chanelNumber)
 {
+	if (getMillisSinceLastReceive() > FailsafeDelayMilliseconds)
+		return _channelFailsafeValues[chanelNumber - 1];
+
 	return _channelValues[chanelNumber - 1];
 }
 
@@ -135,4 +148,14 @@ int RcSatelliteReceiver::getEle()
 int RcSatelliteReceiver::getRud()
 {
 	return getChannel(4);
+}
+
+unsigned long RcSatelliteReceiver::getMillisSinceLastReceive()
+{
+	return millis() - _lastReceiveMillis;
+}
+
+void RcSatelliteReceiver::setChannelFailsafeValue(int channel, int value)
+{
+	_channelFailsafeValues[channel - 1] = value;
 }
