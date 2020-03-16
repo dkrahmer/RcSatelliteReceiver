@@ -1,9 +1,15 @@
 # RcSatelliteReceiver
 
 ## About
-The RcSatelliteReceiver Arduino library allows a developer to use a Spektrum-compatible RC satellite receiver as a PRIMARY receiver connected directly to an Arduino (See below for connection information).
+The RcSatelliteReceiver Arduino library allows a developer to use a Spektrum-compatible DSMX/DSM2 RC satellite receiver as a PRIMARY receiver connected directly to an Arduino (See below for connection information).
 Using an RC satellite receiver has many advantages over a standard RC receiver that outputs a PPM/PWM signal, which is an analog signal masquerading as a digital signal. The signal from an RC satellite receiver is digital serial data which is more reliable and contains ZERO jitter. Any jitter observed using this library is not from the protocol, as with PPM, but from the transmitter. Another huge advantage of using an RC satellite receiver directly is that they support up to 12 channels if your transmitter is capable.
-Generic RC satellite receivers can be found on the internet for less than $10 and provide all 12 channels. Combine this with a Devo transmitter running [deviation](https://www.deviationtx.com/) firmware and a high quality 12 channel RC configuration can be created very inexpensively.
+Generic RC satellite receivers can be found on the internet for about $10 and provide all 12 channels. Combine this with a Devo transmitter running [deviation](https://www.deviationtx.com/) firmware and a high quality 12 channel RC configuration can be created very inexpensively.
+
+<img alt="Compatible RC Receiver front" src="https://raw.githubusercontent.com/dkrahmer/RcSatelliteReceiver/master/images/RcReceiverBoard.jpg" height="250px">
+<img alt="Compatible RC Receiver back" src="https://raw.githubusercontent.com/dkrahmer/RcSatelliteReceiver/master/images/RcReceiverBoard-back.jpg" height="250px">
+
+## Where to Buy
+An RC satellite receiver compatible with this library can be found on eBay for about $10 shipped from China. Listings are often described as Receiver for Spektrum Transmitter 90GT 95GT 110GT. Be sure the board has a BIND button as can be seen in the photo above. Notice the tiny copper colored button on the right edge of the circuit board. [Search eBay for RC satellite receiver](https://www.ebay.com/sch/i.html?_from=R40&_nkw=Receiver+%2890GT%2C95GT%2C110GT%29&_sacat=0&LH_BIN=1&_sop=15).
 
 ## Connecting an RC satellite receiver to an Arduino
 One of the connectors will need to be removed from the satellite receiver cable to attach the wires to an Arduino. Keep in mind that Arduino sketches are uploaded via the serial pins so the signal pin will need to be disconnected to upload your sketch. Nothing will break if the signal pin is left connected, the sketch will just not upload.
