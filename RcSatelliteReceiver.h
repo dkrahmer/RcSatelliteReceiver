@@ -12,6 +12,8 @@
 class RcSatelliteReceiver {
 public:
 	RcSatelliteReceiver(void);
+	RcSatelliteReceiver(Stream *rxSerialPort);
+	RcSatelliteReceiver(Stream *rxSerialPort, Stream *debugSerialPort);
 	void readChannelValues(void);
 	int getChannel(int chanelNumber);
 	int getThr();
@@ -24,6 +26,8 @@ public:
 	const int MaxChannelValue = 1706;
 	const int MessageLength = 16;
 	unsigned long FailsafeDelayMilliseconds = 250; // milliseconds since the last receive to wait before enabling Fail-Safe values
+	void setRxSerialPort(Stream *rxSerialPort);
+	void setDebugSerialPort(Stream *debugSerialPort);
 
 private:
 	int getChannelNumber(int servoData);
@@ -32,6 +36,8 @@ private:
 	int _channelValues[12];
 	int _channelFailsafeValues[12];
 	unsigned long _lastReceiveMillis = 0;
+	Stream *_RxSerialPort;
+	Stream *_DebugSerialPort;
 };
 
 #endif // RCSATELLITERECEIVER_H_
