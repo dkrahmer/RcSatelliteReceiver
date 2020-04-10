@@ -43,6 +43,21 @@ void RcSatelliteReceiver::setDebugSerialPort(Stream *streamObject)
 {
 	_DebugSerialPort = streamObject;
 }
+
+void RcSatelliteReceiver::setMode2048(void)
+{
+	_mask_chanid = MASK_2048_CHANID;
+	_mask_sxpos = MASK_2048_SXPOS;
+	_rot_chanid = ROT_2048_CHANID;
+}
+
+void RcSatelliteReceiver::setMode1024(void)
+{
+	_mask_chanid = MASK_1024_CHANID;
+	_mask_sxpos = MASK_1024_SXPOS;
+	_rot_chanid = ROT_1024_CHANID;
+}
+
 void RcSatelliteReceiver::readChannelValues(void)
 {
 	int startingByteCount = _RxSerialPort->available();
@@ -127,18 +142,14 @@ void RcSatelliteReceiver::readChannelValues(void)
 
 int RcSatelliteReceiver::getChannelNumber(int servoData)
 {
-	uint8_t highByte = highByte(servoData);
-	const int CHANNEL_NUMBER_MASK = B01111000;
-	int channelNumber = (highByte & CHANNEL_NUMBER_MASK) >> 3; // convert the 4 bits to an int value for the channel
+	int channelNumber = (servoData & _mask_chanid) >> _rot_chanid; // convert the bits to an int value for the channel
 	return channelNumber;
 }
 
 int RcSatelliteReceiver::getChannelValue(int servoData)
 {
-	const int HIGHBYTE_CHANNEL_VALUE_MASK = B00000111;
-	uint8_t highByte = highByte(servoData);
-	uint8_t lowByte = lowByte(servoData);
-	int channelValue = (((int)highByte & HIGHBYTE_CHANNEL_VALUE_MASK) << 8) | (int)lowByte; // 342 is the lowest value so we adjust to make it 0
+
+	int channelValue = (servoData & _mask_sxpos); 
 	return channelValue;
 }
 
