@@ -49,6 +49,8 @@ void RcSatelliteReceiver::setMode2048(void)
 	_mask_chanid = MASK_2048_CHANID;
 	_mask_sxpos = MASK_2048_SXPOS;
 	_rot_chanid = ROT_2048_CHANID;
+	MaxChannelValue = CV_2048_MAX;
+	MinChannelValue = CV_2048_MIN;
 }
 
 void RcSatelliteReceiver::setMode1024(void)
@@ -56,6 +58,8 @@ void RcSatelliteReceiver::setMode1024(void)
 	_mask_chanid = MASK_1024_CHANID;
 	_mask_sxpos = MASK_1024_SXPOS;
 	_rot_chanid = ROT_1024_CHANID;
+	MaxChannelValue = CV_2048_MAX / 2;
+	MinChannelValue = CV_2048_MIN / 2;
 }
 
 void RcSatelliteReceiver::readChannelValues(void)
