@@ -12,20 +12,59 @@
 
 RcSatelliteReceiver::RcSatelliteReceiver(void)
 {
-	int midPoint = (MinChannelValue + MaxChannelValue) / 2;
+	_RxSerialPort = &Serial;
+	_DebugSerialPort = &Serial;
+
 	for (int i = 0; i < MaxChannels; i++) {
 		_channelValues[i] = 0;
 		_channelFailsafeValues[i] = 0;
 	}
+}
 
-	// Channel 1 is throttle so set it to the lowest point
-	_channelValues[0] = 0;
-	_channelFailsafeValues[0] = 0;
+RcSatelliteReceiver::RcSatelliteReceiver(Stream *rxSerialPort)
+{
+	setRxSerialPort(rxSerialPort);
+	RcSatelliteReceiver();
+}
+
+RcSatelliteReceiver::RcSatelliteReceiver(Stream *rxSerialPort, Stream *debugSerialPort)
+{
+	setRxSerialPort(rxSerialPort);
+	setDebugSerialPort(debugSerialPort);
+	RcSatelliteReceiver();
+}
+
+void RcSatelliteReceiver::setRxSerialPort(Stream *rxSerialPort)
+{
+	_RxSerialPort = rxSerialPort;
+}
+
+void RcSatelliteReceiver::setDebugSerialPort(Stream *streamObject)
+{
+	_DebugSerialPort = streamObject;
+}
+
+void RcSatelliteReceiver::setMode2048(void)
+{
+	_mask_chanid = MASK_2048_CHANID;
+	_mask_sxpos = MASK_2048_SXPOS;
+	_rot_chanid = ROT_2048_CHANID;
+	MaxChannelValue = CV_2048_MAX;
+	MinChannelValue = CV_2048_MIN;
+}
+
+void RcSatelliteReceiver::setMode1024(void)
+{
+	_mask_chanid = MASK_1024_CHANID;
+	_mask_sxpos = MASK_1024_SXPOS;
+	_rot_chanid = ROT_1024_CHANID;
+	MaxChannelValue = CV_2048_MAX / 2;
+	MinChannelValue = CV_2048_MIN / 2;
 }
 
 void RcSatelliteReceiver::readChannelValues(void)
 {
-	int startingByteCount = Serial.available();
+	int startingByteCount = _RxSerialPort->available();
 	if (startingByteCount < MessageLength)
 		return; // We do not have a full message, nothing to do.
 
@@ -33,13 +72,13 @@ void RcSatelliteReceiver::readChannelValues(void)
 	{
 		// Bad read...
 #ifdef DEBUG
-		Serial.print("Bad message byte count: ");
-		Serial.print(startingByteCount);
-		Serial.println();
+		_DebugSerialPort->print("Bad message byte count: ");
+		_DebugSerialPort->print(startingByteCount);
+		_DebugSerialPort->println();
 #endif
 		// Empty the buffer. Hopefully we get a good message next time
-		while (Serial.available() >= 1)
-			Serial.read();
+		while (_RxSerialPort->available() >= 1)
+			_RxSerialPort->read();
 
 		return;
 	}
@@ -47,7 +86,7 @@ void RcSatelliteReceiver::readChannelValues(void)
 	int bytesRead = 0;
 
 	// Keep looping while there are still whole messages in the buffer
-	while (Serial.available() >= MessageLength)
+	while (_RxSerialPort->available() >= MessageLength)
 	{
 		if (bytesRead > 64)
 			break; // make sure we don't get stuck in an infinite loop
@@ -68,7 +107,7 @@ void RcSatelliteReceiver::readChannelValues(void)
 
 		for (int i = 0; i < MessageLength; i += 2) // Read the message 1 word (2 bytes) at a time
 		{
-			int servoData = (Serial.read() << 8) | Serial.read(); // read 2 bytes and combine into a word
+			int servoData = (_RxSerialPort->read() << 8) | _RxSerialPort->read(); // read 2 bytes and combine into a word
 			bytesRead += 2;
 
 			if (i == 0) // This word contains the fades and system bytes
@@ -86,39 +125,35 @@ void RcSatelliteReceiver::readChannelValues(void)
 	}
 
 #ifdef DEBUG
-	Serial.print("Bytes read: ");
+	_DebugSerialPort->print("Bytes read: ");
 	if (bytesRead < 100) Serial.print('0');
 	if (bytesRead < 10) Serial.print('0');
-	Serial.print(bytesRead);
-	Serial.print("   ");
+	_DebugSerialPort->print(bytesRead);
+	_DebugSerialPort->print("   ");
 
-	Serial.print("Channel values: ");
+	_DebugSerialPort->print("Channel values: ");
 	for (int i = 0; i < MaxChannels; i++)
 	{
 		int channelValue = _channelValues[i];
 		if (channelValue < 100) Serial.print('0');
 		if (channelValue < 10) Serial.print('0');
-		Serial.print(channelValue);
-		Serial.print(" ");
+		_DebugSerialPort->print(channelValue);
+		_DebugSerialPort->print(" ");
 	}
-	Serial.println();
+	_DebugSerialPort->println();
 #endif
 }
 
 int RcSatelliteReceiver::getChannelNumber(int servoData)
 {
-	uint8_t highByte = highByte(servoData);
-	const int CHANNEL_NUMBER_MASK = B01111000;
-	int channelNumber = (highByte & CHANNEL_NUMBER_MASK) >> 3; // convert the 4 bits to an int value for the channel
+	int channelNumber = (servoData & _mask_chanid) >> _rot_chanid; // convert the bits to an int value for the channel
 	return channelNumber;
 }
 
 int RcSatelliteReceiver::getChannelValue(int servoData)
 {
-	const int HIGHBYTE_CHANNEL_VALUE_MASK = B00000111;
-	uint8_t highByte = highByte(servoData);
-	uint8_t lowByte = lowByte(servoData);
-	int channelValue = (((int)highByte & HIGHBYTE_CHANNEL_VALUE_MASK) << 8) | (int)lowByte; // 342 is the lowest value so we adjust to make it 0
+
+	int channelValue = (servoData & _mask_sxpos); 
 	return channelValue;
 }
 
